@@ -79,16 +79,22 @@ fun main(){
     val processedPositiveTweets = positiveTweets.map { preprocessTweet(it) }
     val processedNegativeTweets = negativeTweets.map { preprocessTweet(it) }
 
-    val classifier = NaiveBayesBinaryClassifier()
-
-
+    val x = 4000
 //    split the data into the training and test sets
-//    TODO
+    val trainX = processedPositiveTweets.take(x) + processedNegativeTweets.take(x)
+    val zeros = IntArray(x).toList()
+    val ones = IntArray(x) { 1 }.toList()
+    val trainY = listOf(ones, zeros).flatten()
 
-//    train Naïve Bayes Classifier
-//    TODO
+    val testX = processedPositiveTweets.takeLast(1000) + processedNegativeTweets.takeLast(1000)
+    val z = IntArray(1000).toList()
+    val o = IntArray(1000) { 1 }.toList()
+    val testY = listOf(o, z).flatten()
 
-//    measure accuracy on the test set
-//    TODO
+    val classifier = NaiveBayesBinaryClassifier()
+    classifier.train(trainX, trainY)
+
+    println("Naive Bayes Sentiment Classifier Accuracy: ${classifier.score(testX, testY)}")
+
 
 }

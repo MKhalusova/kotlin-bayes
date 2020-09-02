@@ -16,7 +16,11 @@ class Tokenizer {
 
         val lowercaseTokens = tokensWithoutEmojis.map { it.toLowerCase() }
 
-        return lowercaseTokens + emojisList
+//      Originally Tokenizer returned the list of tokens including emojis but the dataset has been collected and labeled based on emojis,
+//      so that skews the results of the classifier.
+        
+//      return lowercaseTokens + emojisList
+        return lowercaseTokens
     }
 
 }
