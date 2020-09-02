@@ -18,7 +18,7 @@ fun String.removeHashtags() = replace("#", "")
 // remove mentions
 fun String.removeMentions() = replace(regex = Regex("[@#][\\w_-]+"), replacement ="")
 
-// remove XML character encodings
+// remove XML character encodings like &amp;
 fun String.removeXMLEncodings() = replace(regex = Regex("&[a-z]*;")," ")
 
 // remove extra spaces
@@ -28,10 +28,12 @@ fun String.cleanTweet(): String {
     return this.removeTickers().removeRTs().removeURLs().removeHashtags().removeMentions().removeXMLEncodings().removeExtraSpaces()
 }
 
+// Preprocessing a Tweet to be ready for model training: cleaning tweet, tokenizing, removing stop words and stemming
+
 fun preprocessTweet(tweet: String): List<String> {
     val cleanedTweet = tweet.cleanTweet()
 
-    // tokenizing the tweet: splitting into words, lowercasing, dropiing punctuation, keeping emojis
+    // tokenizing the tweet: splitting into words, lowercasing, dropping punctuation, keeping emojis
     val tokenizer = Tokenizer()
     val words = tokenizer.tokenize(cleanedTweet)
 
@@ -52,10 +54,7 @@ fun preprocessTweet(tweet: String): List<String> {
         else tokens.add(word)
     }
 
-    // stem words with PorterStemmer
-    // from nltk.stem import PorterStemmer
-    // stemmer = PorterStemmer()
-    // stem_word = stemmer.stem(word)  # stemming word
+    // TODO: Stemming
 
      return tokens
 }
@@ -76,10 +75,20 @@ fun main(){
     val positiveTweets = extractTweetsFromJSON(positiveTweetsPath)
     val negativeTweets = extractTweetsFromJSON(negativeTweetsPath)
 
-//    remove hashtags, mentions, URLs, extra whitespaces and old style RTs from the tweets
+//    prepare tweets for model training
     val processedPositiveTweets = positiveTweets.map { preprocessTweet(it) }
     val processedNegativeTweets = negativeTweets.map { preprocessTweet(it) }
 
+    val classifier = NaiveBayesBinaryClassifier()
 
+
+//    split the data into the training and test sets
+//    TODO
+
+//    train Naïve Bayes Classifier
+//    TODO
+
+//    measure accuracy on the test set
+//    TODO
 
 }
