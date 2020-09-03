@@ -86,6 +86,7 @@ fun main(){
     val ones = IntArray(x) { 1 }.toList()
     val trainY = listOf(ones, zeros).flatten()
 
+
     val testX = processedPositiveTweets.takeLast(1000) + processedNegativeTweets.takeLast(1000)
     val z = IntArray(1000).toList()
     val o = IntArray(1000) { 1 }.toList()

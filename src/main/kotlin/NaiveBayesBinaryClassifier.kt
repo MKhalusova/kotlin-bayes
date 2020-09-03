@@ -37,6 +37,7 @@ class NaiveBayesBinaryClassifier {
     }
 
     fun train(X: List<List<String>>, Y:List<Int>) {
+        assert(X.size == Y.size)
         this.vocabulary = computeLogLambdas(buildFrequences(X, Y))
         val probPos = ((Y.count { it == 1 }).toDouble()/Y.size)
         val probNeg = ((Y.count { it == 0}).toDouble()/Y.size)
@@ -44,7 +45,7 @@ class NaiveBayesBinaryClassifier {
     }
 
     fun predictLikelihood(x: List<String>): Double {
-        var result = 0.0
+        var result = this.logPrior
         for (token in x) {
             result += this.vocabulary.getOrDefault(token, defaultValue = 0.0)
         }
