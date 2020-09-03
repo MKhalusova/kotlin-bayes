@@ -10,6 +10,25 @@ fun extractTweetsFromJSON (path: String): List<String> {
     return Collections.unmodifiableList(tweets)
 }
 
+fun trainTestSplit (positiveTweets: List<List<String>>, negativeTweets: List<List<String>>, testSize: Double = 0.2): Pair<List<Pair<List<String>, Int>>,List<Pair<List<String>, Int>>> {
+    val data = positiveTweets + negativeTweets
+
+    val ones = IntArray(positiveTweets.size) { 1 }.toList()
+    val zeros = IntArray(negativeTweets.size).toList()
+    val targets = listOf(ones, zeros).flatten()
+
+    val dataset: List<Pair<List<String>, Int>> = data.zip(targets)
+    val shuffledData = dataset.shuffled()
+
+    val trainSetSize: Int = (shuffledData.size*(1-testSize)).toInt()
+    val trainSet: List<Pair<List<String>, Int>> = shuffledData.take(trainSetSize)
+
+    val testSetSize: Int = (shuffledData.size*testSize).toInt()
+    val testSet = shuffledData.takeLast(testSetSize)
+
+    return Pair(trainSet, testSet)
+}
+
 fun main(){
     val positiveTweetsPath = "src/data/twitter_samples/positive_tweets.json"
     val negativeTweetsPath = "src/data/twitter_samples/negative_tweets.json"
@@ -23,18 +42,10 @@ fun main(){
     val processedPositiveTweets = positiveTweets.map { preprocessor.preprocessTweet(it) }
     val processedNegativeTweets = negativeTweets.map { preprocessor.preprocessTweet(it) }
 
-//    split the data into the training and test sets
-    val x = 4000
-    val trainX = processedPositiveTweets.take(x) + processedNegativeTweets.take(x)
-    val zeros = IntArray(x).toList()
-    val ones = IntArray(x) { 1 }.toList()
-    val trainY = listOf(ones, zeros).flatten()
-
-
-    val testX = processedPositiveTweets.takeLast(1000) + processedNegativeTweets.takeLast(1000)
-    val z = IntArray(1000).toList()
-    val o = IntArray(1000) { 1 }.toList()
-    val testY = listOf(o, z).flatten()
+//    split the data into the training and test sets randomly with 20% in test by default
+    val (trainSet, testSet) = trainTestSplit(processedPositiveTweets, processedNegativeTweets)
+    val (trainX, trainY) = trainSet.unzip()
+    val (testX, testY) = testSet.unzip()
 
     val classifier = NaiveBayesBinaryClassifier()
     classifier.train(trainX, trainY)
