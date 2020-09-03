@@ -28,6 +28,7 @@ class NaiveBayesBinaryClassifier {
         val logLamdas = mutableMapOf<String, Double>()
 
         for (word in freqs.keys) {
+            // counting probabilities with Laplacian smoothing to avoid 0s
             val posProb = ((freqs.getValue(word).second + 1).toDouble() / (allPositiveCounts + vocabLength))
             val negProb = ((freqs.getValue(word).first + 1).toDouble() / (allNegativeCounts + vocabLength))
             val logLambda = ln(posProb/negProb)
