@@ -16,7 +16,6 @@ class NaiveBayesBinaryClassifier {
                 if (y == 1) frequencyTable.put(word, Pair(counts!!.first, counts.second + 1))
             }
         }
-//        println(frequencyTable)
         return frequencyTable
     }
 

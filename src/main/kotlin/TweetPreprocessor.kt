@@ -22,14 +22,14 @@ class TweetPreprocessor {
     // remove extra spaces
     private fun String.removeExtraSpaces() = replace(regex = Regex("\\s+")," ")
 
-    fun String.cleanTweet(): String {
+    private fun String.cleanTweet(): String {
         return this.removeTickers().removeRTs().removeURLs().removeHashtags().removeMentions().removeXMLEncodings().removeExtraSpaces()
     }
 
     fun preprocessTweet(tweet: String): List<String> {
         val cleanedTweet = tweet.cleanTweet()
 
-        // tokenizing the tweet: splitting into words, lowercasing, dropping punctuation, keeping emojis
+        // tokenizing the tweet: splitting into words, lowercasing, dropping punctuation, not keeping emojis
         val tokenizer = Tokenizer()
         val words = tokenizer.tokenize(cleanedTweet, false)
 
