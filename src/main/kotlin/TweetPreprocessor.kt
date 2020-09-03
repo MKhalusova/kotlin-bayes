@@ -31,7 +31,7 @@ class TweetPreprocessor {
 
         // tokenizing the tweet: splitting into words, lowercasing, dropping punctuation, keeping emojis
         val tokenizer = Tokenizer()
-        val words = tokenizer.tokenize(cleanedTweet)
+        val words = tokenizer.tokenize(cleanedTweet, false)
 
         val stopWords = listOf("i", "m", "t", "re", "ve", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself",
                 "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "they",

@@ -1,7 +1,7 @@
 class Tokenizer {
     val emojisRegex = Regex("(?:[<>]?[:;=8][\\-o*']?[)\\](\\[dDpP/:}{@|\\\\]|[)\\](\\[dDpP/:}{@|\\\\][\\-o*']?[:;=8][<>]?|<3)")
 
-    fun tokenize(string:String): List<String> {
+    fun tokenize(string: String, leaveEmojis: Boolean): List<String> {
 
         // extract emojis into separate list
         val emojiMatches = emojisRegex.findAll(string)
@@ -16,11 +16,8 @@ class Tokenizer {
 
         val lowercaseTokens = tokensWithoutEmojis.map { it.toLowerCase() }
 
-//      Originally Tokenizer returned the list of tokens including emojis but the dataset has been collected and labeled based on emojis,
-//      so that skews the results of the classifier.
-//      return lowercaseTokens + emojisList
-
-        return lowercaseTokens
+        if (leaveEmojis) return lowercaseTokens + emojisList
+        else return lowercaseTokens
     }
 
 }
