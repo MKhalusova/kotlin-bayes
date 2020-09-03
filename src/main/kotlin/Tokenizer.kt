@@ -16,8 +16,8 @@ class Tokenizer {
 
         val lowercaseTokens = tokensWithoutEmojis.map { it.toLowerCase() }
 
-        if (leaveEmojis) return lowercaseTokens + emojisList
-        else return lowercaseTokens
+        return if (leaveEmojis) lowercaseTokens + emojisList
+        else lowercaseTokens
     }
 
 }
