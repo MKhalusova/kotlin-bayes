@@ -58,7 +58,6 @@ class NaiveBayesBinaryClassifier {
         else 0
     }
 
-
     fun score(xTest: List<List<String>>, yTest:List<Int>): Double {
         assert(xTest.size == yTest.size)
         val yHat = mutableListOf<Int>()

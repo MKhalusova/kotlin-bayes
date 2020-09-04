@@ -10,21 +10,15 @@ fun extractTweetsFromJSON (path: String): List<String> {
     return Collections.unmodifiableList(tweets)
 }
 
-fun trainTestSplit (positiveTweets: List<List<String>>, negativeTweets: List<List<String>>, testSize: Double = 0.2): Pair<List<Pair<List<String>, Int>>,List<Pair<List<String>, Int>>> {
-    val data = positiveTweets + negativeTweets
+data class TweetRecord(val tweetTokens: List<String>, val label: Int)
 
-    val ones = IntArray(positiveTweets.size) { 1 }.toList()
-    val zeros = IntArray(negativeTweets.size).toList()
-    val targets = listOf(ones, zeros).flatten()
+fun trainTestSplit (dataset: List<TweetRecord>, testSize: Double = 0.2): Pair<List<TweetRecord>,List<TweetRecord>>{
+    val shuffledDataset = dataset.shuffled()
+    val trainSetSize: Int = (shuffledDataset.size*(1 - testSize)).toInt()
+    val trainSet = shuffledDataset.take(trainSetSize)
 
-    val dataset: List<Pair<List<String>, Int>> = data.zip(targets)
-    val shuffledData = dataset.shuffled()
-
-    val trainSetSize: Int = (shuffledData.size*(1-testSize)).toInt()
-    val trainSet: List<Pair<List<String>, Int>> = shuffledData.take(trainSetSize)
-
-    val testSetSize: Int = (shuffledData.size*testSize).toInt()
-    val testSet = shuffledData.takeLast(testSetSize)
+    val testSetSize: Int = (shuffledDataset.size*testSize).toInt()
+    val testSet = shuffledDataset.takeLast(testSetSize)
 
     return Pair(trainSet, testSet)
 }
@@ -42,11 +36,21 @@ fun main(){
     val processedPositiveTweets = positiveTweets.map { preprocessor.preprocessTweet(it) }
     val processedNegativeTweets = negativeTweets.map { preprocessor.preprocessTweet(it) }
 
-//    split the data into the training and test sets randomly with 20% in test by default
-    val (trainSet, testSet) = trainTestSplit(processedPositiveTweets, processedNegativeTweets)
-    val (trainX, trainY) = trainSet.unzip()
-    val (testX, testY) = testSet.unzip()
+//    combining all tweets into a dataset - list of TweetRecords
+    val positiveTweetRecords = processedPositiveTweets.map { TweetRecord(it, 1) }
+    val negativeTweetRecords = processedNegativeTweets.map {TweetRecord(it, 0)}
+    val fullDataSet = positiveTweetRecords + negativeTweetRecords
 
+// Splitting the data into training set and test set
+    val (trainData, testData) = trainTestSplit(fullDataSet)
+
+//  Splittin Tweet records into features and targets (X and Y) for the classifier
+    val trainX = trainData.map { it.tweetTokens }
+    val trainY = trainData.map { it.label }
+    val testX = testData.map { it.tweetTokens }
+    val testY = testData.map { it.label }
+
+//    training NaiveBayesClassifier
     val classifier = NaiveBayesBinaryClassifier()
     classifier.train(trainX, trainY)
 
