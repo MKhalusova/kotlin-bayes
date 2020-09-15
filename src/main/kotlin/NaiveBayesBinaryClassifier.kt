@@ -5,15 +5,14 @@ class NaiveBayesBinaryClassifier {
     var vocabulary = emptyMap<String, Double>()
 
     private fun buildFrequences(texts: List<List<String>>, targets:List<Int>): Map<String, Pair<Int, Int>>{
-        // X - list of tokenized tweets, targets = labels (will need to combine positive and negative tweets)
+        // texts - list of tokenized tweets, targets = labels (will need to combine positive and negative tweets)
         // frequency table of word to Pair<negative (0) count , positive (1) count>
         val frequencyTable = mutableMapOf<String, Pair<Int,Int>>()
         for ((tweet, y)  in texts.zip(targets)) {
             for (word in tweet) {
-                frequencyTable.putIfAbsent(word, Pair(0,0))
-                val counts = frequencyTable.get(word)
-                if (y == 0) frequencyTable.put(word, Pair(counts!!.first + 1, counts.second))
-                if (y == 1) frequencyTable.put(word, Pair(counts!!.first, counts.second + 1))
+                val counts = frequencyTable.getOrDefault(word, Pair(0,0))
+                if (y == 0) frequencyTable.put(word, Pair(counts.first + 1, counts.second))
+                if (y == 1) frequencyTable.put(word, Pair(counts.first, counts.second + 1))
             }
         }
         return frequencyTable
@@ -37,7 +36,7 @@ class NaiveBayesBinaryClassifier {
     }
 
     fun train(X: List<List<String>>, Y:List<Int>) {
-        assert(X.size == Y.size)
+        require(X.size == Y.size) {"Size of X doesn't match size of Y"}
         this.vocabulary = computeLogLambdas(buildFrequences(X, Y))
         val probPos = ((Y.count { it == 1 }).toDouble()/Y.size)
         val probNeg = ((Y.count { it == 0}).toDouble()/Y.size)
@@ -59,7 +58,7 @@ class NaiveBayesBinaryClassifier {
     }
 
     fun score(xTest: List<List<String>>, yTest:List<Int>): Double {
-        assert(xTest.size == yTest.size)
+        require(xTest.size == yTest.size) {"Size of X doesn't match size of Y"}
         val yHat = mutableListOf<Int>()
         for (x in xTest) {
             yHat.add(predictLabel(x))

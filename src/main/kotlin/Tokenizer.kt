@@ -12,7 +12,7 @@ class Tokenizer {
         val withoutPunctuation = withoutEmojis.replace(regex = Regex("[^a-zA-Z_-]"), replacement = " ").replace(regex = Regex("\\s+")," ").trim()
 
         // splitting the string into tokens
-        val tokensWithoutEmojis: List<String> = withoutPunctuation.split(delimiters = arrayOf(" "))
+        val tokensWithoutEmojis: List<String> = withoutPunctuation.split(" ")
 
         val lowercaseTokens = tokensWithoutEmojis.map { it.toLowerCase() }
 

@@ -31,6 +31,7 @@ fun main(){
     val positiveTweets = extractTweetsFromJSON(positiveTweetsPath)
     val negativeTweets = extractTweetsFromJSON(negativeTweetsPath)
 
+
 //    prepare tweets for model training
     val preprocessor = TweetPreprocessor()
     val processedPositiveTweets = positiveTweets.map { preprocessor.preprocessTweet(it) }
@@ -44,7 +45,7 @@ fun main(){
 // Splitting the data into training set and test set
     val (trainData, testData) = trainTestSplit(fullDataSet)
 
-//  Splittin Tweet records into features and targets (X and Y) for the classifier
+//  Splitting Tweet records into features and targets (X and Y) for the classifier
     val trainX = trainData.map { it.tweetTokens }
     val trainY = trainData.map { it.label }
     val testX = testData.map { it.tweetTokens }

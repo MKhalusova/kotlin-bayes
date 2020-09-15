@@ -50,8 +50,6 @@ class TweetPreprocessor {
             else tokens.add(word)
         }
 
-        // TODO: Stemming
-
         return tokens
     }
 }
