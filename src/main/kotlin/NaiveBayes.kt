@@ -4,14 +4,16 @@ import java.io.File
 
 fun extractTweetsFromJSON(path: String): List<String> {
     val parser = Parser.default()
-    return File(path).readLines().map { (parser.parse(StringBuilder(it)) as JsonObject).string("text") ?: "null" }
+    return File(path).useLines { lines ->
+        lines.map { (parser.parse(StringBuilder(it)) as JsonObject).string("text") ?: "null" }.toList()
+    }
 }
 
 data class TweetRecord(val tweetTokens: List<String>, val label: Int)
 
 fun trainTestSplit(dataset: List<TweetRecord>, testSize: Double = 0.2): Pair<List<TweetRecord>, List<TweetRecord>> {
     val shuffledDataset = dataset.shuffled()
-    val trainSetSize: Int = (shuffledDataset.size * (1 - testSize)).toInt()
+    val trainSetSize = (shuffledDataset.size * (1 - testSize)).toInt()
     val trainSet = shuffledDataset.take(trainSetSize)
     val testSet = shuffledDataset.drop(trainSetSize)
     return trainSet to testSet

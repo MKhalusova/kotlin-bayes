@@ -22,9 +22,9 @@ class NaiveBayesBinaryClassifier {
         val vocabLength = freqs.size
 
         return freqs.keys.associateWith { word ->
-            val (negative, positive) = freqs[word]!!
-            val posProb = (positive + 1).toDouble() / (allPositiveCounts + vocabLength)
-            val negProb = (negative + 1).toDouble() / (allNegativeCounts + vocabLength)
+            val (negative, positive) = freqs.getValue(word)
+            val posProb = (positive + 1.0) / (allPositiveCounts + vocabLength)
+            val negProb = (negative + 1.0) / (allNegativeCounts + vocabLength)
             ln(posProb / negProb)
         }
     }
@@ -32,9 +32,9 @@ class NaiveBayesBinaryClassifier {
     fun train(X: List<List<String>>, Y: List<Int>) {
         require(X.size == Y.size) { "Size of X doesn't match size of Y" }
         vocabulary = computeLogLambdas(buildFrequencies(X, Y))
-        val probPos = (Y.count { it == 1 }).toDouble() / Y.size
-        val probNeg = (Y.count { it == 0 }).toDouble() / Y.size
-        logPrior = ln(probPos / probNeg)
+        val positiveCount = Y.count { it == 1 }
+        val negativeCount = Y.count { it == 0 }
+        logPrior = ln(positiveCount.toDouble() / negativeCount)
     }
 
     fun predictLikelihood(x: List<String>): Double =
