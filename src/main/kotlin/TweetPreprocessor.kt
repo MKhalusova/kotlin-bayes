@@ -47,7 +47,6 @@ object TweetPreprocessor {
 
     fun preprocessTweet(tweet: String): List<String> {
         val cleanedTweet = tweet.cleanTweet()
-
         // tokenizing the tweet: splitting into words, lowercasing, dropping punctuation, not keeping emojis
         val words = Tokenizer.tokenize(cleanedTweet, leaveEmojis = false)
         return words.filter { it !in stopWords }

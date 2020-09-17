@@ -14,7 +14,8 @@ repositories {
 dependencies {
     testImplementation(kotlin("test-junit"))
     implementation("com.beust:klaxon:5.0.1")
+    implementation("com.google.guava:guava:29.0-jre")
 }
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
