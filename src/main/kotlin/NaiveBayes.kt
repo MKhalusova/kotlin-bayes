@@ -16,7 +16,7 @@ fun trainTestSplit(dataset: List<TweetRecord>, testSize: Double = 0.2): Pair<Lis
     val trainSetSize = (shuffledDataset.size * (1 - testSize)).toInt()
     val trainSet = shuffledDataset.take(trainSetSize)
     val testSet = shuffledDataset.drop(trainSetSize)
-    return trainSet to testSet
+    return Pair(trainSet, testSet)
 }
 
 fun main() {

@@ -12,7 +12,7 @@ class NaiveBayesBinaryClassifier {
         val negativeSet = negativeTweets.flatMap { it.first }.toMultiset()
         val positiveSet = positiveTweets.flatMap { it.first }.toMultiset()
         return (negativeSet.elementSet() + positiveSet.elementSet()).associateWith { word ->
-            negativeSet.count(word) to positiveSet.count(word)
+            Pair(negativeSet.count(word), positiveSet.count(word))
         }
     }
 
