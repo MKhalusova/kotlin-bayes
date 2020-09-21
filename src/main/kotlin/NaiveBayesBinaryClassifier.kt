@@ -1,75 +1,53 @@
+import com.google.common.collect.*
 import kotlin.math.ln
 
 class NaiveBayesBinaryClassifier {
     var logPrior: Double = 0.0
     var vocabulary = emptyMap<String, Double>()
 
-    private fun buildFrequences(texts: List<List<String>>, targets:List<Int>): Map<String, Pair<Int, Int>>{
+    private fun buildFrequencies(texts: List<List<String>>, targets: List<Int>): Map<String, Pair<Int, Int>> {
         // texts - list of tokenized tweets, targets = labels (will need to combine positive and negative tweets)
         // frequency table of word to Pair<negative (0) count , positive (1) count>
-        val frequencyTable = mutableMapOf<String, Pair<Int,Int>>()
-        for ((tweet, y)  in texts.zip(targets)) {
-            for (word in tweet) {
-                val counts = frequencyTable.getOrDefault(word, Pair(0,0))
-                if (y == 0) frequencyTable.put(word, Pair(counts.first + 1, counts.second))
-                if (y == 1) frequencyTable.put(word, Pair(counts.first, counts.second + 1))
-            }
+        val (negativeTweets, positiveTweets) = texts.zip(targets).partition { it.second == 0 }
+        val negativeSet = negativeTweets.flatMap { it.first }.toMultiset()
+        val positiveSet = positiveTweets.flatMap { it.first }.toMultiset()
+        return (negativeSet.elementSet() + positiveSet.elementSet()).associateWith { word ->
+            Pair(negativeSet.count(word), positiveSet.count(word))
         }
-        return frequencyTable
     }
 
     private fun computeLogLambdas(freqs: Map<String, Pair<Int, Int>>): Map<String, Double> {
         val allPositiveCounts = freqs.values.sumBy { it.second }
-        val allNegativeCounts = freqs.values.sumBy {it.first}
+        val allNegativeCounts = freqs.values.sumBy { it.first }
         val vocabLength = freqs.size
 
-        val logLamdas = mutableMapOf<String, Double>()
-
-        for (word in freqs.keys) {
-            // counting probabilities with Laplacian smoothing to avoid 0s
-            val posProb = ((freqs.getValue(word).second + 1).toDouble() / (allPositiveCounts + vocabLength))
-            val negProb = ((freqs.getValue(word).first + 1).toDouble() / (allNegativeCounts + vocabLength))
-            val logLambda = ln(posProb/negProb)
-            logLamdas[word] = logLambda
+        return freqs.keys.associateWith { word ->
+            val (negative, positive) = freqs.getValue(word)
+            val posProb = (positive + 1.0) / (allPositiveCounts + vocabLength)
+            val negProb = (negative + 1.0) / (allNegativeCounts + vocabLength)
+            ln(posProb / negProb)
         }
-        return logLamdas
     }
 
-    fun train(X: List<List<String>>, Y:List<Int>) {
-        require(X.size == Y.size) {"Size of X doesn't match size of Y"}
-        this.vocabulary = computeLogLambdas(buildFrequences(X, Y))
-        val probPos = ((Y.count { it == 1 }).toDouble()/Y.size)
-        val probNeg = ((Y.count { it == 0}).toDouble()/Y.size)
-        this.logPrior = ln(probPos/probNeg)
+    fun train(X: List<List<String>>, Y: List<Int>) {
+        require(X.size == Y.size) { "Size of X doesn't match size of Y" }
+        vocabulary = computeLogLambdas(buildFrequencies(X, Y))
+        val positiveCount = Y.count { it == 1 }
+        val negativeCount = Y.count { it == 0 }
+        logPrior = ln(positiveCount.toDouble() / negativeCount)
     }
 
-    fun predictLikelihood(x: List<String>): Double {
-        var result = this.logPrior
-        for (token in x) {
-            result += this.vocabulary.getOrDefault(token, defaultValue = 0.0)
-        }
+    fun predictLikelihood(x: List<String>): Double =
+        logPrior + x.sumByDouble { vocabulary.getOrDefault(it, defaultValue = 0.0) }
 
-        return result
+    fun predictLabel(x: List<String>): Int = if (predictLikelihood(x) >= 0) 1 else 0
+
+    fun score(xTest: List<List<String>>, yTest: List<Int>): Double {
+        require(xTest.size == yTest.size) { "Size of X doesn't match size of Y" }
+        val yHat = xTest.map(::predictLabel)
+        val correctPredictions = yHat.zip(yTest).count { (y1, y2) -> y1 == y2 }
+        return correctPredictions.toDouble() / yTest.size
     }
 
-    fun predictLabel(x: List<String>): Int {
-        return if (this.predictLikelihood(x) >= 0) 1
-        else 0
-    }
-
-    fun score(xTest: List<List<String>>, yTest:List<Int>): Double {
-        require(xTest.size == yTest.size) {"Size of X doesn't match size of Y"}
-        val yHat = mutableListOf<Int>()
-        for (x in xTest) {
-            yHat.add(predictLabel(x))
-        }
-        var correctPredictions = 0
-        for ((y1, y2) in yHat.zip(yTest)) {
-            if (y1 == y2) correctPredictions +=1
-        }
-        return correctPredictions.toDouble()/yTest.size
-    }
-
+    private fun <T> List<T>.toMultiset(): Multiset<T> = HashMultiset.create(this)
 }
-
-
